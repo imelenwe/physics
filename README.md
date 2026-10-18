@@ -45,16 +45,15 @@ Topic folders use short lowercase names with dashes, e.g. `topics/special-relati
 
 ## Viewing the pages
 
-- **Online:** https://imelenwe.github.io/physics/ (GitHub Pages, once it is turned on;
-  see below).
+- **Online:** https://imelenwe.github.io/physics/ (GitHub Pages).
 - **Offline:** open `index.html` in a browser. Pages are self-contained single files.
 
 ## Setup status
 
 - [x] Local repo at `~/physics` (branch `main`)
 - [x] GitHub repo created: https://github.com/imelenwe/physics (remote `origin`)
-- [ ] First commit and push (done by Inv)
-- [ ] GitHub Pages: Settings → Pages → Deploy from branch `main`, folder `/ (root)`
+- [x] First commit and push
+- [x] GitHub Pages on: branch `main`, folder `/ (root)`
 
 ## Topics
 
