@@ -1,0 +1,18 @@
+# macOS
+.DS_Store
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Secrets
+.env
+*.env
+
+# Private inbox notes (raw pastes not meant for the public repo)
+inbox/private/

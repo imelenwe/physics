@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Physics Learning Index</title>
+<style>
+  :root {
+    --bg: #12151b; --surface: #1a1f28; --surface-border: #2a3140;
+    --text: #eef1f6; --text-dim: #8b96a8; --accent: #6fb3f2;
+  }
+  @media (prefers-color-scheme: light) {
+    :root {
+      --bg: #eef1f5; --surface: #ffffff; --surface-border: #d8dee6;
+      --text: #1a1f28; --text-dim: #5b6472; --accent: #1f6fb8;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--text);
+    font-family: -apple-system, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    display: flex; justify-content: center; padding: 40px 16px 80px;
+  }
+  .page { width: 100%; max-width: 860px; display: flex; flex-direction: column; gap: 36px; }
+  .eyebrow { font-family: ui-monospace, Menlo, monospace; font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-dim); }
+  h1 { margin: 6px 0 0; font-size: 30px; }
+  h2 { margin: 0 0 6px; font-size: 20px; }
+  .lede { margin: 10px 0 0; font-size: 15px; line-height: 1.6; color: var(--text-dim); max-width: 68ch; }
+  .group-note { margin: 0 0 14px; font-size: 14px; line-height: 1.6; color: var(--text-dim); }
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; }
+  a.card {
+    display: block; text-decoration: none; color: var(--text);
+    background: var(--surface); border: 1px solid var(--surface-border); border-radius: 10px; padding: 14px 16px;
+  }
+  a.card:hover { border-color: var(--accent); }
+  .card-title { font-size: 15px; font-weight: 700; margin-bottom: 4px; }
+  .card-title .arrow { color: var(--accent); }
+  .card-desc { font-size: 13.5px; line-height: 1.55; color: var(--text-dim); }
+  .tag { display: inline-block; font-family: ui-monospace, Menlo, monospace; font-size: 10.5px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-dim); border: 1px solid var(--surface-border); border-radius: 999px; padding: 1px 8px; margin-bottom: 6px; }
+  .empty { background: var(--surface); border: 1px dashed var(--surface-border); border-radius: 10px; padding: 18px; font-size: 14px; line-height: 1.6; color: var(--text-dim); }
+  .footer { font-size: 13px; line-height: 1.6; color: var(--text-dim); border-top: 1px solid var(--surface-border); padding-top: 14px; }
+  .footer a { color: var(--accent); }
+</style>
+</head>
+<body>
+<main class="page">
+
+  <header>
+    <div class="eyebrow">imelenwe / physics</div>
+    <h1>Physics, learned and visualized</h1>
+    <p class="lede">My physics learning notebook. Each topic has plain-language notes and explainer pages with visualizations you can play with. This page links to all of them.</p>
+  </header>
+
+  <!-- One <section> per topic. Copy this pattern when adding a topic:
+  <section>
+    <h2>Topic name</h2>
+    <p class="group-note">One line on what this topic covers.</p>
+    <div class="cards">
+      <a class="card" href="topics/topic-name/page.html">
+        <div class="tag">1 · interactive</div>
+        <div class="card-title">Page title <span class="arrow">→</span></div>
+        <div class="card-desc">One line on what the page shows.</div>
+      </a>
+    </div>
+  </section>
+  -->
+
+  <section>
+    <h2>Topics</h2>
+    <div class="empty">No topics yet. The first one will appear here once a summary from Claude web is written up.</div>
+  </section>
+
+  <footer class="footer">
+    Source: <a href="https://github.com/imelenwe/physics">github.com/imelenwe/physics</a>
+  </footer>
+
+</main>
+</body>
+</html>
