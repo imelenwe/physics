@@ -1,0 +1,416 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Blackbody Radiation</title>
+<style>
+  :root {
+    --bg: #12151b; --surface: #1a1f28; --surface-border: #2a3140;
+    --text: #eef1f6; --text-dim: #8b96a8; --accent: #6fb3f2;
+    --key-bg: #17263a; --grid: #2a3140; --wall: #4a5262; --cavity: #0b0e13;
+    /* one meaning per colour */
+    --c-in: #f5b942;       /* radiation arriving */
+    --c-bounce: #4fd1c5;   /* radiation bouncing off */
+    --c-pass: #7ee081;     /* radiation passing through */
+    --c-absorb: #f472b6;   /* radiation absorbed */
+    --c-glow: #ff8a4c;     /* radiation the body gives off */
+    --c-classical: #f87171;/* classical prediction */
+    --c-planck: #6fb3f2;   /* measured = Planck */
+  }
+  @media (prefers-color-scheme: light) {
+    :root {
+      --bg: #eef1f5; --surface: #ffffff; --surface-border: #d8dee6;
+      --text: #1a1f28; --text-dim: #5b6472; --accent: #1f6fb8;
+      --key-bg: #e6f0fb; --grid: #d8dee6; --wall: #8a94a6; --cavity: #1a1f28;
+      --c-in: #b7791f; --c-bounce: #0f8f84; --c-pass: #2f8a3a; --c-absorb: #c0267a;
+      --c-glow: #d9541e; --c-classical: #dc2626; --c-planck: #1f6fb8;
+    }
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0; background: var(--bg); color: var(--text);
+    font-family: -apple-system, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    font-size: 16.5px; line-height: 1.65;
+  }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  .topbar { display: flex; justify-content: space-between; align-items: center; gap: 12px; max-width: 1000px; margin: 0 auto; padding: 14px 16px; font-size: 14px; color: var(--text-dim); }
+  .eyebrow { font-family: ui-monospace, Menlo, monospace; font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; }
+
+  .layout { display: grid; grid-template-columns: 190px minmax(0, 700px); gap: 40px; justify-content: center; padding: 8px 16px 80px; }
+  .toc { position: sticky; top: 24px; align-self: start; font-size: 14px; }
+  .toc-title { font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-dim); margin-bottom: 8px; }
+  .toc a { display: block; padding: 5px 10px; margin-left: -10px; color: var(--text-dim); border-left: 2px solid transparent; line-height: 1.4; }
+  .toc a:hover { color: var(--text); text-decoration: none; }
+  .toc a.active { color: var(--accent); border-left-color: var(--accent); font-weight: 600; }
+  .chips { display: none; }
+
+  main { min-width: 0; }
+  section { scroll-margin-top: 24px; margin-top: 44px; }
+  h1 { font-size: 30px; line-height: 1.2; margin: 4px 0 16px; }
+  h2 { font-size: 21px; line-height: 1.3; margin: 0 0 10px; }
+  h2 .n { color: var(--text-dim); font-weight: 500; margin-right: 6px; }
+  h3 { font-size: 16.5px; margin: 18px 0 6px; }
+  p { margin: 0 0 12px; }
+  b, strong { font-weight: 650; }
+  .dim { color: var(--text-dim); }
+  .hl { font-weight: 650; }
+  .in { color: var(--c-in); } .bounce { color: var(--c-bounce); } .pass { color: var(--c-pass); }
+  .absorb { color: var(--c-absorb); } .glow { color: var(--c-glow); }
+  .cl { color: var(--c-classical); } .pl { color: var(--c-planck); }
+  sup { font-size: 0.72em; line-height: 0; }
+
+  /* ---------- summary card ---------- */
+  section.summary { margin-top: 0; }
+  .sc { background: var(--key-bg); border: 1px solid var(--surface-border); border-top: 4px solid var(--accent); border-radius: 12px; padding: 14px 16px; }
+  .sc-label, .sc-h { font-family: ui-monospace, Menlo, monospace; font-size: 11.5px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); }
+  .sc-label { margin-bottom: 4px; }
+  .sc-h { margin: 12px 0 2px; }
+  .sc-core { margin: 0 0 8px; }
+  .sc figure { margin: 6px 0 4px; }
+  .sc figcaption { margin-top: 2px; font-size: 13px; }
+  .sc .formula { margin: 8px 0 0; font-size: 16.5px; padding: 8px; }
+  .sc-list { margin: 0; padding-left: 20px; font-size: 15px; line-height: 1.5; }
+  .sc-list li { margin: 4px 0; }
+  .sc table { font-size: 13.5px; margin: 4px 0 0; }
+  .sc th, .sc td { padding: 5px 6px; vertical-align: top; }
+
+  figure { margin: 14px 0; }
+  figcaption { font-size: 14px; color: var(--text-dim); margin-top: 6px; line-height: 1.5; }
+  svg { display: block; width: 100%; height: auto; }
+  .axis-label { font-size: 11px; fill: var(--text-dim); }
+  .trio { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 12px 0; }
+  .trio figure { margin: 0; background: var(--surface); border: 1px solid var(--surface-border); border-radius: 10px; padding: 8px; }
+  .trio figcaption { margin-top: 2px; font-size: 13px; text-align: center; }
+  .trio figcaption b { display: block; color: var(--text); }
+
+  .formula { font-size: 18px; text-align: center; padding: 10px 12px; margin: 12px 0; background: var(--surface); border: 1px solid var(--surface-border); border-radius: 10px; line-height: 1.7; }
+  .formula small { display: block; font-size: 13.5px; color: var(--text-dim); margin-top: 2px; line-height: 1.5; }
+  .steps { margin: 8px 0 12px; padding-left: 22px; }
+  .steps li { margin: 8px 0; }
+  .note { font-size: 14.5px; color: var(--text-dim); border-left: 3px solid var(--accent); padding: 4px 0 4px 12px; margin: 12px 0; }
+  .note b { color: var(--text); }
+
+  table { width: 100%; border-collapse: collapse; font-size: 14.5px; margin: 8px 0 12px; }
+  th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid var(--surface-border); }
+  th { font-weight: 600; color: var(--text-dim); font-size: 13px; }
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+
+  button { font: inherit; font-size: 14px; cursor: pointer; color: var(--text); background: var(--bg); border: 1px solid var(--surface-border); border-radius: 999px; padding: 5px 13px; }
+  button:hover { border-color: var(--accent); }
+  button.on { border-color: var(--c-glow); color: var(--c-glow); }
+  .legend { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 13.5px; margin: 6px 0 0; }
+  .legend span::before { content: ""; display: inline-block; width: 18px; height: 0; border-top: 3px solid; margin-right: 6px; vertical-align: middle; }
+  .legend .lg-pl::before { border-color: var(--c-planck); }
+  .legend .lg-cl::before { border-color: var(--c-classical); border-top-style: dashed; }
+
+  .pager { display: flex; justify-content: space-between; gap: 12px; margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--surface-border); font-size: 14.5px; }
+
+  @media (max-width: 880px) {
+    .layout { grid-template-columns: minmax(0, 1fr); gap: 0; padding-top: 0; }
+    .toc { display: none; }
+    .chips { display: flex; gap: 6px; overflow-x: auto; position: sticky; top: 0; z-index: 5; padding: 10px 16px; margin: 0 -16px; background: var(--bg); border-bottom: 1px solid var(--surface-border); scrollbar-width: none; }
+    .chips::-webkit-scrollbar { display: none; }
+    .chips a { flex: none; font-size: 13.5px; padding: 4px 12px; border-radius: 999px; border: 1px solid var(--surface-border); color: var(--text-dim); background: var(--surface); }
+    .chips a.active { color: var(--accent); border-color: var(--accent); }
+    section { scroll-margin-top: 64px; }
+    h1 { font-size: 26px; margin-top: 18px; }
+  }
+  @media (max-width: 480px) { .trio { gap: 6px; } .trio figure { padding: 5px; } .trio figcaption { font-size: 12px; } }
+</style>
+</head>
+<body>
+
+<!-- Arrowheads shared by the diagrams; one per colour. -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <marker id="ah-in" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 z" style="fill:var(--c-in)"/></marker>
+    <marker id="ah-bounce" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 z" style="fill:var(--c-bounce)"/></marker>
+    <marker id="ah-pass" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 z" style="fill:var(--c-pass)"/></marker>
+    <marker id="ah-glow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 z" style="fill:var(--c-glow)"/></marker>
+    <marker id="ah-cl" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 z" style="fill:var(--c-classical)"/></marker>
+    <linearGradient id="rainbow" x1="0" x2="1">
+      <stop offset="0" stop-color="#8b5cf6"/><stop offset="0.19" stop-color="#3b82f6"/>
+      <stop offset="0.3" stop-color="#22d3ee"/><stop offset="0.41" stop-color="#22c55e"/>
+      <stop offset="0.54" stop-color="#eab308"/><stop offset="0.62" stop-color="#f97316"/>
+      <stop offset="1" stop-color="#ef4444"/>
+    </linearGradient>
+  </defs>
+</svg>
+
+<div class="topbar">
+  <a href="../../index.html">← All pages</a>
+  <span class="eyebrow">Physics notebook</span>
+</div>
+
+<div class="layout">
+  <nav class="toc" aria-label="On this page"><div class="toc-title">On this page</div></nav>
+
+  <main>
+    <nav class="chips" aria-label="On this page"></nav>
+
+    <h1>Blackbody radiation</h1>
+
+    <!-- ===== Summary card ===== -->
+    <section id="summary" class="summary" data-label="Summary card">
+      <div class="sc">
+        <div class="sc-label">Summary card</div>
+        <p class="sc-core">A <b>blackbody</b> absorbs all radiation that falls on it, so the radiation it gives off depends <b>only on its temperature</b>. Classical physics predicted it should give off <b>infinite</b> energy at short wavelengths. In 1900 Planck fixed this by assuming energy comes in <b>packets, E = hf</b>. That was the first idea of quantum physics.</p>
+        <div class="sc-h">Remember</div>
+        <ol class="sc-list">
+          <li><b>Blackbody</b> = absorbs all radiation falling on it. "Black" is not its colour: hot, it glows. The Sun is nearly one.</li>
+          <li><b>Only temperature matters</b>: one curve per temperature. Hotter → the peak moves to shorter wavelengths.</li>
+          <li><b>Classical failure:</b> heating a body makes its electrons jiggle, and jiggling electrons give off radiation. Classical physics said they can give off any wavelength, and every possible wave gets the same share of the heat. There is no limit to how short a wave can be, so the total comes out infinite: the <b>ultraviolet catastrophe</b>.</li>
+          <li><b>Planck's fix:</b> radiation carries energy only in whole packets, and shorter waves need bigger packets. The jiggling electrons rarely have enough energy for a big one, so short waves get almost nothing.</li>
+          <li><b>Classical physics was right for long waves</b> (small packets) and wrong for short ones (big packets).</li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- ===== 1 ===== -->
+    <section id="blackbody" data-label="What a blackbody is">
+      <h2><span class="n">1</span>What is a blackbody?</h2>
+      <p><b>Everything gives off radiation.</b> Any object warmer than absolute zero (0 K, or −273 °C) gives off <b>electromagnetic radiation</b> all the time. Its atoms and electrons jiggle, and jiggling electric charges send out electromagnetic waves. Radio waves, infrared, visible light, ultraviolet and X-rays are all the same kind of wave, differing only in wavelength. Radiation given off this way, because something is warm, is called <b>thermal radiation</b>. A warm object gives off mostly infrared, which we cannot see but feel as heat. Only very hot objects give off enough visible light to glow.</p>
+      <p><b>Absorbing.</b> When <span class="hl in">radiation arrives</span> at a surface, it can <span class="hl bounce">bounce off</span>, <span class="hl pass">pass through</span>, or be <span class="hl absorb">absorbed</span> (turned into heat).</p>
+      <div class="trio">
+        <figure>
+          <svg viewBox="0 0 160 130" role="img" aria-label="Mirror: radiation bounces off">
+            <rect x="10" y="70" width="140" height="16" rx="2" fill="#aab4c4"/>
+            <line x1="28" y1="8" x2="77" y2="68" stroke="var(--c-in)" stroke-width="4" marker-end="url(#ah-in)"/>
+            <line x1="83" y1="70" x2="130" y2="12" stroke="var(--c-bounce)" stroke-width="4" marker-end="url(#ah-bounce)"/>
+          </svg>
+          <figcaption><b>Mirror</b>bounces it off</figcaption>
+        </figure>
+        <figure>
+          <svg viewBox="0 0 160 130" role="img" aria-label="Glass: radiation passes through">
+            <rect x="10" y="70" width="140" height="16" rx="2" fill="#7fc8ff" opacity="0.28" stroke="#7fc8ff" stroke-opacity="0.6"/>
+            <line x1="28" y1="8" x2="77" y2="68" stroke="var(--c-in)" stroke-width="4" marker-end="url(#ah-in)"/>
+            <line x1="78" y1="70" x2="116" y2="120" stroke="var(--c-pass)" stroke-width="4" marker-end="url(#ah-pass)"/>
+          </svg>
+          <figcaption><b>Glass</b>lets it through</figcaption>
+        </figure>
+        <figure>
+          <svg viewBox="0 0 160 130" role="img" aria-label="Blackbody: radiation is absorbed">
+            <rect x="10" y="70" width="140" height="16" rx="2" fill="#05070a" stroke="var(--wall)"/>
+            <line x1="28" y1="8" x2="74" y2="64" stroke="var(--c-in)" stroke-width="4" marker-end="url(#ah-in)"/>
+            <g stroke="var(--c-absorb)" stroke-width="2.5" stroke-linecap="round">
+              <line x1="80" y1="78" x2="68" y2="78"/><line x1="80" y1="78" x2="92" y2="78"/>
+              <line x1="80" y1="78" x2="72" y2="84"/><line x1="80" y1="78" x2="88" y2="84"/>
+            </g>
+            <circle cx="80" cy="78" r="3" fill="var(--c-absorb)"/>
+          </svg>
+          <figcaption><b>Blackbody</b>absorbs all of it</figcaption>
+        </figure>
+      </div>
+      <p>A <b>blackbody</b> absorbs <b>all</b> radiation that falls on it, at every wavelength, and reflects none. "Black" describes this, <b>not its colour</b>. A cold blackbody looks black, because nothing bounces off it. A hot one glows: everything coming from it is radiation it gives off itself. A body that is good at absorbing radiation is also good at giving it off, so at any temperature nothing gives off more radiation than a blackbody.</p>
+      <p><b>Why physicists use it.</b> An ordinary object sends out a mix of reflected radiation and its own, and its own depends on what it is made of. A blackbody's radiation depends <b>only on its temperature</b>, so there is one universal curve for each temperature. That makes it a clean test for any theory of radiation.</p>
+      <p><b>How to make one: a closed box with a small hole.</b> Radiation that enters the hole bounces around inside and is absorbed, bit by bit, long before it can find the hole again. So the hole absorbs practically everything: <b>the hole is the blackbody</b>. Heat the box and the walls give off radiation, which fills the box; what leaks out of the hole is pure blackbody radiation.</p>
+      <figure>
+        <svg id="box-svg" viewBox="0 0 360 220" role="img" aria-label="A box with a small hole: radiation entering is absorbed; when hot, radiation leaks out">
+          <rect x="44" y="24" width="270" height="176" fill="var(--cavity)" id="cavity"/>
+          <g id="walls" fill="var(--wall)">
+            <rect x="30" y="10" width="298" height="14"/><rect x="30" y="200" width="298" height="14"/>
+            <rect x="314" y="10" width="14" height="204"/>
+            <rect x="30" y="10" width="14" height="88"/><rect x="30" y="122" width="14" height="92"/>
+          </g>
+          <g id="cold-ray">
+            <line x1="0" y1="110" x2="40" y2="110" stroke="var(--c-in)" stroke-width="3.5" marker-end="url(#ah-in)"/>
+            <polyline points="44,110 312,62" fill="none" stroke="var(--c-in)" stroke-width="3"/>
+            <polyline points="312,62 180,26" fill="none" stroke="var(--c-in)" stroke-width="3" opacity="0.75"/>
+            <polyline points="180,26 96,198" fill="none" stroke="var(--c-in)" stroke-width="3" opacity="0.55"/>
+            <polyline points="96,198 312,150" fill="none" stroke="var(--c-in)" stroke-width="3" opacity="0.38"/>
+            <polyline points="312,150 210,198" fill="none" stroke="var(--c-in)" stroke-width="3" opacity="0.22"/>
+            <polyline points="210,198 150,150" fill="none" stroke="var(--c-in)" stroke-width="3" opacity="0.1"/>
+            <g fill="var(--c-absorb)"><circle cx="312" cy="62" r="4.5"/><circle cx="180" cy="26" r="4.5"/><circle cx="96" cy="198" r="4.5"/><circle cx="312" cy="150" r="4.5"/><circle cx="210" cy="198" r="4.5"/></g>
+          </g>
+          <g id="hot-glow" style="display:none" stroke="var(--c-glow)" stroke-width="3" fill="none">
+            <path d="M120,70 q8,-8 16,0 t16,0 t16,0" opacity="0.7"/>
+            <path d="M200,150 q8,-8 16,0 t16,0 t16,0" opacity="0.7"/>
+            <path d="M230,80 q8,-8 16,0 t16,0" opacity="0.7"/>
+            <path d="M70,104 q-6,-8 -12,0 t-12,0 t-12,0 t-12,0 t-12,0" stroke-width="3.5" marker-end="url(#ah-glow)"/>
+            <path d="M70,117 q-6,-8 -12,0 t-12,0 t-12,0 t-12,0 t-12,0" stroke-width="3.5" marker-end="url(#ah-glow)"/>
+          </g>
+        </svg>
+        <figcaption id="box-caption"></figcaption>
+      </figure>
+      <p><button id="heat-btn" type="button">Heat the box</button></p>
+      <p><b>The Sun is very nearly a blackbody.</b> It works like a giant box with a hole. Radiation made inside is absorbed and given off again countless times on its way out, taking thousands to hundreds of thousands of years. By the time it escapes from the 5800 K surface, it follows the blackbody curve closely, apart from some narrow dark lines where gases in the Sun's outer layer absorb particular wavelengths.</p>
+    </section>
+
+    <!-- ===== 2 ===== -->
+    <section id="classical" data-label="Where classical physics fails">
+      <h2><span class="n">2</span>Where classical physics fails</h2>
+      <h3>What experiments measured</h3>
+      <p>By the late 1800s, experiments had measured how much radiation a blackbody gives off at each wavelength. The <span class="hl pl">solid curve</span> shows this. It rises, reaches a peak, and falls back to zero at short wavelengths (left). A hotter body gives off more at every wavelength, and its peak moves to shorter wavelengths.</p>
+
+      <figure>
+        <svg id="plot" viewBox="0 0 400 270" role="img" aria-label="Radiation given off at each wavelength by a body at 5800 K: measured curve and classical prediction"></svg>
+        <div class="legend"><span class="lg-pl">measured</span><span class="lg-cl">classical prediction</span></div>
+        <figcaption>A body at 5800 K, the temperature of the Sun's surface. Left to right: wavelength, in micrometres (μm, a millionth of a metre). Up: how much radiation it gives off at that wavelength, per square metre of surface. The rainbow strip is visible light.</figcaption>
+      </figure>
+
+      <h3>What classical physics predicted, step by step</h3>
+      <ol class="steps">
+        <li><b>A body is made of atoms, and atoms contain electrons</b>: tiny particles with electric charge.</li>
+        <li><b>Heating a body makes its atoms jiggle, and the electrons in them jiggle too.</b> The heat energy goes into this jiggling. The hotter the body, the harder they jiggle.</li>
+        <li><b>A jiggling electron gives off radiation.</b> The faster it jiggles back and forth, the shorter the wave it sends out.</li>
+        <li><b>Classical physics: the electrons can jiggle at any speed.</b> So the body can give off radiation at any wavelength, and there is always a shorter wave possible. There are infinitely many possible waves, and far more short ones than long ones.</li>
+        <li><b>Classical rule: heat energy spreads out evenly.</b> Picture people passing coins to each other at random for a long time: in the end, on average, each person holds about the same amount. Classical physics says heat energy behaves the same way (this rule worked very well for gases). So every possible wave, short or long, gets the same share of the body's heat energy.</li>
+        <li><b>Add it up.</b> Infinitely many possible waves, each with the same share = <b>infinite energy</b>, almost all of it in the short waves.</li>
+      </ol>
+      <p>That is the <span class="hl cl">dashed curve</span>. It agrees with the measurements at long wavelengths, but at short wavelengths it shoots up without limit. Even a warm stove would blast out ultraviolet and X-rays. This failure was called the <b>ultraviolet catastrophe</b>. Nothing was wrong with the arithmetic: something in classical physics itself had to give.</p>
+    </section>
+
+    <!-- ===== 3 ===== -->
+    <section id="planck" data-label="How Planck fixed it">
+      <h2><span class="n">3</span>How Planck fixed it: energy comes in packets</h2>
+      <p>In 1900, Max Planck changed one thing. A jiggling electron <b>cannot give off just any amount of energy</b> as radiation. A wave of frequency f (how many times per second it vibrates) can only carry energy away in whole packets, each of size</p>
+      <div class="formula">E = hf
+        <small>h is a fixed, very small number (Planck's constant). Faster jiggling → higher frequency → shorter wave → bigger packet.</small></div>
+      <p>So a short wave can only be sent out if the body can put a whole, big packet into it at once. Half a packet is not allowed.</p>
+
+      <h3>A toy example</h3>
+      <p>Imagine a body that has <b>6 units of energy</b> (eV, a tiny unit of energy) to give off, and only three possible waves:</p>
+      <ul class="steps">
+        <li>a <b>short wave</b>, whose packet is 10 eV,</li>
+        <li>a <b>medium wave</b>, whose packet is 5 eV,</li>
+        <li>a <b>long wave</b>, whose packet is 1 eV.</li>
+      </ul>
+      <p><b>Classical physics</b> shares the 6 eV evenly: 2 eV to each wave.</p>
+      <p><b>With packets</b>, each wave can only carry whole packets of its own size. The short wave needs 10 eV for a single packet, but there are only 6 eV, so it gets nothing. Only two ways of using the 6 eV are possible:</p>
+      <ul class="steps">
+        <li>one 5 eV packet in the medium wave + one 1 eV packet in the long wave, or</li>
+        <li>six 1 eV packets in the long wave.</li>
+      </ul>
+      <p>Taking both ways as equally likely, the average energy each wave carries is:</p>
+      <table>
+        <thead><tr><th>Wave (packet size)</th><th class="num cl">Classical: equal share</th><th class="num pl">With packets: average</th></tr></thead>
+        <tbody>
+          <tr><td>Short (10 eV)</td><td class="num">2 eV</td><td class="num">0 eV</td></tr>
+          <tr><td>Medium (5 eV)</td><td class="num">2 eV</td><td class="num">2.5 eV</td></tr>
+          <tr><td>Long (1 eV)</td><td class="num">2 eV</td><td class="num">3.5 eV</td></tr>
+        </tbody>
+      </table>
+      <p>The short wave is starved: its packet is bigger than all the energy available. That is the whole fix in miniature.</p>
+
+      <h3>The same thing in a real body</h3>
+      <ol class="steps">
+        <li><b>The jiggling electrons have a limited amount of energy</b>, set by the temperature of the body.</li>
+        <li><b>Long waves need only small packets</b>, so the body sends them out easily, just as classical physics said. That is why the classical curve matches the measurements at long wavelengths.</li>
+        <li><b>Short waves need packets bigger than the energy the jiggling electrons usually have</b>, like the 10 eV wave in the toy example. So they are almost never sent out.</li>
+        <li><b>So the curve falls back to zero at short wavelengths</b> instead of shooting up, and the total energy is finite.</li>
+        <li><b>Heat the body and its electrons jiggle harder</b>, so they can now fill bigger packets, and the peak moves to shorter wavelengths. At room temperature even a packet of visible light is too big, which is why everyday objects do not glow.</li>
+      </ol>
+      <p>With this one change, Planck's formula matches the measured curve at <b>every</b> wavelength and temperature: it is the <span class="hl pl">solid curve</span> in the graph above.</p>
+      <p class="note"><b>What came next.</b> Planck thought of the packets as a rule about how jiggling electrons give off energy. In 1905 Einstein went further: radiation <b>itself</b> comes in packets, later called <b>photons</b>, each of energy hf. That explained the photoelectric effect: below a certain frequency, light knocks no electrons out of a metal however bright it is, because no single packet is big enough. In 1913 Bohr applied the same idea to atoms: electrons sit only in certain orbits, so atoms give off only certain wavelengths. Energy coming in fixed amounts, or <b>quantisation</b>, became the core of quantum physics.</p>
+    </section>
+
+    <div class="pager">
+      <a href="../../index.html">← All pages</a>
+      <a href="../waves/classical-waves.html">Classical waves →</a>
+    </div>
+  </main>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  // ---- "On this page": side menu on wide screens, chip row on phones ----
+  const sections = Array.from(document.querySelectorAll("main section[id]"));
+  const toc = document.querySelector(".toc"), chips = document.querySelector(".chips");
+  const tocLinks = [], chipLinks = [];
+  sections.forEach((s) => {
+    for (const [box, list] of [[toc, tocLinks], [chips, chipLinks]]) {
+      const a = document.createElement("a");
+      a.href = "#" + s.id; a.textContent = s.dataset.label;
+      box.appendChild(a); list.push(a);
+    }
+  });
+  let lastActive = -1;
+  function setActive() {
+    let current = 0;
+    sections.forEach((s, i) => { if (s.getBoundingClientRect().top < 140) current = i; });
+    if (current === lastActive) return;
+    lastActive = current;
+    tocLinks.forEach((a, i) => a.classList.toggle("active", i === current));
+    chipLinks.forEach((a, i) => a.classList.toggle("active", i === current));
+    const chip = chipLinks[current];
+    chips.scrollTo({ left: chip.offsetLeft - chips.clientWidth / 2 + chip.offsetWidth / 2, behavior: "smooth" });
+  }
+  document.addEventListener("scroll", setActive, { passive: true });
+  setActive();
+
+  // ---- Box with a hole: cold / hot ----
+  const btn = document.getElementById("heat-btn"), caption = document.getElementById("box-caption");
+  let hot = false;
+  function drawBox() {
+    document.getElementById("cold-ray").style.display = hot ? "none" : "";
+    document.getElementById("hot-glow").style.display = hot ? "" : "none";
+    document.getElementById("walls").setAttribute("fill", hot ? "#c2410c" : "var(--wall)");
+    document.getElementById("cavity").setAttribute("fill", hot ? "#3a1608" : "var(--cavity)");
+    btn.textContent = hot ? "Cool the box" : "Heat the box";
+    btn.classList.toggle("on", hot);
+    caption.innerHTML = hot
+      ? "Hot: the walls give off <span class='hl glow'>radiation</span>, which fills the box and leaks out of the hole."
+      : "Cold: <span class='hl in'>radiation entering</span> bounces around; at each <span class='hl absorb'>pink dot</span> the wall absorbs part of it. It is used up before it can find the hole again.";
+  }
+  btn.addEventListener("click", () => { hot = !hot; drawBox(); });
+  drawBox();
+
+  // ---- Physics: radiation given off per m² of surface, per μm of wavelength (W / (m²·μm)) ----
+  const C2 = 14388;                                    // hc/k in μm·K
+  const planck = (lam, T) => 3.7418e8 / (Math.pow(lam, 5) * (Math.exp(C2 / (lam * T)) - 1));
+  const classical = (lam, T) => 26006 * T / Math.pow(lam, 4);   // classical: equal share of heat per possible wave
+  const WIEN = 2898;
+  const path = (pts) => pts.map((p, i) => (i ? "L" : "M") + p[0].toFixed(1) + "," + p[1].toFixed(1)).join("");
+
+  // Draw measured + classical curves into an SVG box. Classical is clipped at the top.
+  function curves(T, lmax, X0, X1, Y0, Y1, ymax, showCl) {
+    const x = (l) => X0 + (l / lmax) * (X1 - X0);
+    const y = (v) => Y1 - (v / ymax) * (Y1 - Y0);
+    const pl = [], cl = [];
+    for (let i = 1; i <= 300; i++) {
+      const l = (i / 300) * lmax;
+      pl.push([x(l), y(planck(l, T))]);
+      const c = classical(l, T);
+      if (c <= ymax * 1.02) cl.push([x(l), y(c)]);
+    }
+    let s = `<path d="${path(pl)}" fill="none" stroke="var(--c-planck)" stroke-width="2.6" stroke-linejoin="round"/>`;
+    if (showCl && cl.length > 1) {
+      // add the point where the classical curve leaves the top of the box, then an arrow upward
+      cl.sort((a, b) => a[0] - b[0]);
+      const lTop = Math.pow(26006 * T / (ymax * 1.02), 0.25);
+      cl.unshift([x(lTop), y(ymax * 1.02)]);
+      s += `<path d="${path(cl)}" fill="none" stroke="var(--c-classical)" stroke-width="2.4" stroke-dasharray="7 5"/>`;
+      s += `<line x1="${x(lTop)}" y1="${Y0 + 22}" x2="${x(lTop)}" y2="${Y0 + 2}" stroke="var(--c-classical)" stroke-width="2.4" marker-end="url(#ah-cl)"/>`;
+      s += `<text x="${x(lTop) + 8}" y="${Y0 + 14}" class="axis-label" style="fill:var(--c-classical);font-weight:700">classical → ∞</text>`;
+    }
+    return s;
+  }
+
+  // ---- Section 2 graph: one body at 5800 K, measured vs classical, real axes ----
+  (function drawPlot() {
+    const T = 5800, L = 3, X0 = 54, X1 = 390, Y0 = 12, Y1 = 214;
+    const ymax = 1e8, step = 2e7;                      // W per m² per μm; labelled in MW
+    const x = (l) => X0 + (l / L) * (X1 - X0), y = (v) => Y1 - (v / ymax) * (Y1 - Y0);
+    let s = `<rect x="${x(0.38)}" y="${Y0}" width="${x(0.75) - x(0.38)}" height="${Y1 - Y0}" fill="url(#rainbow)" opacity="0.28"/>`;
+    for (let v = 0; v <= ymax; v += step) {
+      s += `<line x1="${X0}" y1="${y(v)}" x2="${X1}" y2="${y(v)}" stroke="var(--grid)"/>`;
+      s += `<text x="${X0 - 5}" y="${y(v) + 4}" text-anchor="end" class="axis-label">${v / 1e6}</text>`;
+    }
+    for (let l = 0; l <= L; l++) s += `<text x="${x(l)}" y="${Y1 + 15}" text-anchor="middle" class="axis-label">${l}</text>`;
+    s += `<line x1="${X0}" y1="${Y0}" x2="${X0}" y2="${Y1}" stroke="var(--text-dim)"/>`;
+    s += `<line x1="${X0}" y1="${Y1}" x2="${X1}" y2="${Y1}" stroke="var(--text-dim)"/>`;
+    s += `<text x="${(X0 + X1) / 2}" y="${Y1 + 32}" text-anchor="middle" class="axis-label">wavelength (μm)</text>`;
+    s += `<text x="12" y="${(Y0 + Y1) / 2}" transform="rotate(-90 12 ${(Y0 + Y1) / 2})" text-anchor="middle" class="axis-label">radiation given off (MW per m² per μm)</text>`;
+    s += curves(T, L, X0, X1, Y0, Y1, ymax, true);
+    document.getElementById("plot").innerHTML = s;
+  })();
+})();
+</script>
+</body>
+</html>

@@ -22,7 +22,7 @@ its summary into a Claude Code session in this repo. Claude Code then turns it i
 
 1. a Markdown note for the topic (the source of truth), and
 2. one or more HTML explainer pages with visualizations, and
-3. a new card on the front page, [`index.html`](index.html).
+3. a new link on the front page, [`index.html`](index.html).
 
 Raw pasted summaries go in [`inbox/`](inbox/) first, so nothing is lost before it is
 turned into a proper note.
@@ -33,6 +33,7 @@ turned into a proper note.
 physics/
 ├── README.md        ← this file: what the repo is and how it works
 ├── CLAUDE.md        ← standing instructions for Claude Code sessions
+├── PLAN.md          ← which pages are planned / built
 ├── index.html       ← front door: links to every explainer page
 ├── inbox/           ← raw summaries pasted from Claude web, waiting to be written up
 └── topics/
@@ -57,4 +58,9 @@ Topic folders use short lowercase names with dashes, e.g. `topics/special-relati
 
 ## Topics
 
-None yet. The first summary from Claude web will start the first topic.
+- **Blackbody radiation** (`topics/blackbody-radiation/`): one page: what a blackbody
+  is, where classical physics fails, and how Planck's energy packets fixed it.
+- **Classical waves** (`topics/waves/`): one page: a wave as a delayed copy, the formula,
+  the complex form (displacement + i·velocity), superposition.
+- **Quantum basics** (`topics/quantum-basics/`): the Deep Basics Notebook: Born rule and
+  trace, projectors vs observables, Kraus operators, Lindblad derivation, amplitude damping.
