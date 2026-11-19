@@ -83,6 +83,20 @@ details.recall { border-top: 1px dashed var(--rule); padding-top: 10px; }
 details.recall summary { cursor: pointer; color: var(--accent); font-weight: 600; font-size: 14px; }
 details.recall summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
 details.recall p { margin-top: 6px; color: var(--muted); }
+/* T1 / T2 formula boxes: orange = populations (T1), violet = coherences (T2) */
+:root { --t1: #b4531a; --t2: #6a3fb5; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --t1: #f09a5e; --t2: #b99af5; } }
+:root[data-theme="dark"] { --t1: #f09a5e; --t2: #b99af5; }
+sub, sup { font-size: .72em; line-height: 0; }
+.formulas { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 12px; }
+.formula { border: 1px solid var(--rule); border-radius: 8px; padding: 14px 16px; display: grid; gap: 6px; min-width: 0; }
+.formula .name { font-family: var(--f-mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; }
+.formula .eq { font-family: var(--f-mono); font-size: 16px; }
+.formula .says { color: var(--muted); font-size: 14px; }
+.formula.t1 { border-left: 4px solid var(--t1); } .formula.t1 .name { color: var(--t1); }
+.formula.t2 { border-left: 4px solid var(--t2); } .formula.t2 .name { color: var(--t2); }
+.c1 { color: var(--t1); font-weight: 600; } .c2 { color: var(--t2); font-weight: 600; }
+td.f { font-family: var(--f-mono); font-size: 13.5px; white-space: nowrap; }
 footer { grid-column: 1 / -1; color: var(--muted); font-size: 13px; border-top: 1px solid var(--rule); padding-top: 16px; }
 @media (max-width: 860px) {
   .wrap { grid-template-columns: minmax(0, 1fr); gap: 28px; }
@@ -109,7 +123,6 @@ footer { grid-column: 1 / -1; color: var(--muted); font-size: 13px; border-top: 
       <a href="#m6"><b>M6</b>Coherence is basis-dependent</a>
       <a href="#m7"><b>M7</b>Projector vs observable</a>
       <a href="#m8"><b>M8</b>The true nature of a state</a>
-      <a href="#m9"><b>M9</b>Overlap of two errors</a>
     </div>
     <div class="grp"><span>Channels &amp; Kraus</span>
       <a href="#k1"><b>K1</b>Kraus operators</a>
@@ -118,15 +131,15 @@ footer { grid-column: 1 / -1; color: var(--muted); font-size: 13px; border-top: 
       <a href="#k4"><b>K4</b>Three noises on the Bloch ball</a>
     </div>
     <div class="grp"><span>Lindblad</span>
-      <a href="#l1"><b>L1</b>Why I + M·dt</a>
-      <a href="#l2"><b>L2</b>Why √(γ·dt)</a>
-      <a href="#l3"><b>L3</b>Hermitian + i·Hermitian</a>
-      <a href="#l4"><b>L4</b>Why B = −H</a>
-      <a href="#l5"><b>L5</b>The final equation</a>
-      <a href="#l6"><b>L6</b>Amplitude damping</a>
+      <a href="#l1"><b>L1</b>Rotation plus loss</a>
+      <a href="#l2"><b>L2</b>One tiny step</a>
+      <a href="#l3"><b>L3</b>Loss fixed, rotation free</a>
+      <a href="#l4"><b>L4</b>Choosing the jump</a>
     </div>
-    <div class="grp"><span>Slips I made</span>
-      <a href="#s1"><b>S1</b>Traps to avoid</a>
+    <div class="grp"><span>T1 and T2</span>
+      <a href="#t1"><b>T1</b>Amplitude damping</a>
+      <a href="#t2"><b>T2</b>Phase damping</a>
+      <a href="#t3"><b>T3</b>Both: T2 ≤ 2·T1</a>
     </div>
   </nav>
 
@@ -152,7 +165,7 @@ footer { grid-column: 1 / -1; color: var(--muted); font-size: 13px; border-top: 
 <pre>p(m) = |⟨m|ψ⟩|²
      = ⟨m|ψ⟩* · ⟨m|ψ⟩          |z|² = z* · z
      = ⟨ψ|m⟩ · ⟨m|ψ⟩            conjugating an overlap flips it round
-     = ⟨ψ| (|m⟩⟨m|) |ψ⟩  =  ⟨ψ|P_m|ψ⟩</pre>
+     = ⟨ψ| (|m⟩⟨m|) |ψ⟩  =  ⟨ψ|Pₘ|ψ⟩</pre>
         <p>The state appears twice (ket and bra) because probability is the amplitude times its own conjugate.</p>
         <p class="lbl">Example</p>
 <pre>p(0 | +) = ⟨+| |0⟩⟨0| |+⟩ = (1/√2)(1/√2) = 1/2</pre>
@@ -175,7 +188,7 @@ P² = P and P† = P              (asking twice gives the same answer)</pre>
         <p class="stmt">Two layers of chance: a classical chance pᵢ of which state is in the box (never squared), then the quantum chance of the outcome given that state.</p>
 <pre>ρ = Σ pᵢ |ψᵢ⟩⟨ψᵢ|
 p(m) = Σ  p(state was ψᵢ) × p(m | ψᵢ)          law of total probability
-     = Σ  pᵢ × ⟨ψᵢ|P_m|ψᵢ⟩</pre>
+     = Σ  pᵢ × ⟨ψᵢ|Pₘ|ψᵢ⟩</pre>
         <p class="lbl">Example</p>
 <pre>bag: 25% |1⟩, 75% |+⟩
 p(0) = 0.25 × 0  +  0.75 × 1/2  =  3/8</pre>
@@ -201,14 +214,14 @@ tr(P₀ρ) = 3/8                    same as the bag route</pre>
         <h3><span class="id">M6</span>Coherence is basis-dependent; off-diagonals are interference</h3>
         <p class="stmt">A measurement reads only ρ's diagonal when it is done in the same basis ρ is written in. In any other basis the off-diagonals (interference) also count. tr(Pρ) works for any question.</p>
         <p class="lbl">The maths</p>
-<pre>tr(Pρ) = P_00·ρ_00 + P_01·ρ_10 + P_10·ρ_01 + P_11·ρ_11
-P₀ = [[1,0],[0,0]]    → P_01 = P_10 = 0 → coherences multiplied by 0
-P₊ = ½[[1,1],[1,1]]   → P_01 = P_10 = ½ → coherences switched on</pre>
+<pre>tr(Pρ) = P₀₀·ρ₀₀ + P₀₁·ρ₁₀ + P₁₀·ρ₀₁ + P₁₁·ρ₁₁
+P₀ = [[1,0],[0,0]]    → P₀₁ = P₁₀ = 0 → coherences multiplied by 0
+P₊ = ½[[1,1],[1,1]]   → P₀₁ = P₁₀ = ½ → coherences switched on</pre>
         <p class="lbl">The physics</p>
 <pre>ψ = a|0⟩ + b|1⟩
 ⟨+|ψ⟩ = (a + b)/√2                          two paths recombine
 p(+)  = ½(|a|² + |b|²) + ½(a b* + a* b)     populations + cross terms</pre>
-        <p>Squaring a sum gives cross terms, like (x + y)² = x² + y² + 2xy. Those cross terms are interference, and they are exactly ρ_01 and ρ_10. A Z measurement never recombines the paths, so it cannot tell a superposition from a classical coin. An X measurement can. That is why tomography measures in X, Y and Z, and why phase damping (which wipes the off-diagonals) destroys interference.</p>
+        <p>Squaring a sum gives cross terms, like (x + y)² = x² + y² + 2xy. Those cross terms are interference, and they are exactly ρ₀₁ and ρ₁₀. A Z measurement never recombines the paths, so it cannot tell a superposition from a classical coin. An X measurement can. That is why tomography measures in X, Y and Z, and why phase damping (which wipes the off-diagonals) destroys interference.</p>
         <p class="lbl">Example</p>
 <pre>tr(P₊ρ) = ½(3/8 + 3/8) + ½(3/8 + 5/8) = 7/8
 bag check: 0.25 × ½ + 0.75 × 1 = 7/8   ✓
@@ -219,8 +232,8 @@ same ρ with the coherences removed: [[3/8,0],[0,5/8]] → tr(P₊ρ) = ½</pre>
       <article class="card" id="m7">
         <h3><span class="id">M7</span>Projector vs observable: same formula, different answer</h3>
         <p class="stmt">tr(something · ρ). A projector gives a probability; an observable gives an average value. An observable is a set of projectors with a number attached to each.</p>
-<pre>O = Σ λ_m P_m                       spectral decomposition (eigenvalues λ_m)
-⟨O⟩ = Σ λ_m · p(m) = Σ λ_m tr(P_m ρ) = tr(Oρ)
+<pre>O = Σ λₘ Pₘ                       spectral decomposition (eigenvalues λₘ)
+⟨O⟩ = Σ λₘ · p(m) = Σ λₘ tr(Pₘ ρ) = tr(Oρ)
 
 Z = (+1)·P₀ + (−1)·P₁ = [[1,0],[0,−1]]</pre>
         <p class="lbl">Example</p>
@@ -265,7 +278,7 @@ spread: Var(Z) = ⟨Z²⟩ − ⟨Z⟩² = 1 − 1/16 = 15/16      (Z² = I)</pr
           <li><b>Bloch vector length |r|</b>: 1 on the surface (pure), smaller inside (mixed), 0 at the centre.</li>
         </ul>
         <p class="lbl">Example (our ρ)</p>
-<pre>r = (2·Re ρ_01, −2·Im ρ_01, ρ_00 − ρ_11) = (3/4, 0, −1/4)
+<pre>r = (2·Re ρ₀₁, −2·Im ρ₀₁, ρ₀₀ − ρ₁₁) = (3/4, 0, −1/4)
 |r| = √10 / 4 ≈ 0.79                  inside the ball: mixed
 eigenvalues = (1 ± |r|)/2 ≈ 0.895, 0.105
 tr(ρ²) = (1 + |r|²)/2 = 13/16         same in both bases above</pre>
@@ -273,15 +286,6 @@ tr(ρ²) = (1 + |r|²)/2 = 13/16         same in both bases above</pre>
         <details class="recall"><summary>Recall</summary><p>Name three things about ρ that no change of basis can alter. (Eigenvalues, purity tr(ρ²), Bloch length |r| — and every probability tr(Pρ).)</p></details>
       </article>
 
-      <article class="card" id="m9">
-        <h3><span class="id">M9</span>What "overlap of E_i and E_j" means</h3>
-        <p class="stmt">E_i†E_j is a matrix, not a number. Put a state on each side and it becomes the ordinary overlap between the two damaged states E_i|ψ⟩ and E_j|ψ⟩.</p>
-<pre>⟨ψ| E_i† E_j |ψ⟩ = (E_i|ψ⟩)† · (E_j|ψ⟩)
-i = j:  ⟨ψ|E_i†E_i|ψ⟩ = squared length = probability of error i   (Born rule)
-matrices directly:  ⟨A, B⟩ = tr(A†B)       e.g. tr(X†Z) = 0</pre>
-        <p>If the overlap is 0, a measurement can tell the two errors apart. Knill–Laflamme, P E_i†E_j P = α_ij P, says this overlap is the same number α_ij for every code state, so finding out which error happened reveals nothing about the encoded information.</p>
-        <details class="recall"><summary>Recall</summary><p>How do you turn the matrix E_i†E_j into an overlap you can picture? (Sandwich it with a state and split it in the middle into two damaged states.)</p></details>
-      </article>
     </section>
 
     <!-- ============ CHANNELS ============ -->
@@ -294,10 +298,10 @@ matrices directly:  ⟨A, B⟩ = tr(A†B)       e.g. tr(X†Z) = 0</pre>
 <pre>ρ → Σ K ρ K†                     K on the left, K† on the right
 tr(Σ K ρ K†) = tr(Σ K†K ρ)       cyclic
              = tr(I ρ) = 1       needs Σ K†K = I
-tr(K_k ρ K_k†) = p_k              each piece alone: probability of outcome k</pre>
+tr(Kₖ ρ Kₖ†) = pₖ              each piece alone: probability of outcome k</pre>
         <p class="lbl">Example (amplitude damping on |1⟩⟨1|, decay chance γ)</p>
-<pre>K_0 = [[1,0],[0,√(1−γ)]]   → trace 1 − γ   "no decay"
-K_1 = [[0,√γ],[0,0]]       → trace γ       "decayed"
+<pre>K₀ = [[1,0],[0,√(1−γ)]]   → trace 1 − γ   "no decay"
+K₁ = [[0,√γ],[0,0]]       → trace γ       "decayed"
                               sum = 1 ✓</pre>
         <p>One Kraus operator only: K†K = I, so it is a unitary. What gets lost to the environment is information (which K happened), not probability. Averaging over the unknown outcome is what turns a pure state into a mixed one.</p>
         <details class="recall"><summary>Recall</summary><p>Why is the single-K case always unitary? (Completeness with one term gives K†K = I.)</p></details>
@@ -306,18 +310,18 @@ K_1 = [[0,√γ],[0,0]]       → trace γ       "decayed"
       <article class="card" id="k2">
         <h3><span class="id">K2</span>Kraus operators belong to a time window</h3>
         <p class="stmt">Paulis are fixed matrices. Kraus operators describe what the noise did over a chosen interval Δt, so they change when Δt changes. The rates are what is fixed. Kraus sets are also not unique.</p>
-<pre>K_0(Δt) = [[1,0],[0,√(e^{−ΓΔt})]]      K_1(Δt) = [[0,√(1−e^{−ΓΔt})],[0,0]]
-Pauli channel:  K_k = √(p_k(Δt)) · P_k  fixed shape, weight grows with time</pre>
+<pre>K₀(Δt) = [[1,0],[0,√(e<sup>−ΓΔt</sup>)]]      K₁(Δt) = [[0,√(1−e<sup>−ΓΔt</sup>)],[0,0]]
+Pauli channel:  Kₖ = √(pₖ(Δt)) · Pₖ  fixed shape, weight grows with time</pre>
         <p>Analogy: K is the distance covered in five minutes, the rate is the speed. Lindblad is the equation written in speeds.</p>
-        <details class="recall"><summary>Recall</summary><p>What do K_0 and K_1 become as Δt → 0? (K_0 → I, K_1 → 0: nothing happens.)</p></details>
+        <details class="recall"><summary>Recall</summary><p>What do K₀ and K₁ become as Δt → 0? (K₀ → I, K₁ → 0: nothing happens.)</p></details>
       </article>
 
       <article class="card" id="k3">
         <h3><span class="id">K3</span>Memory breaks the chopping, not the Kraus form</h3>
         <p class="stmt">Non-Markovian noise still has a valid Kraus set from 0 to t, with Σ K†K = I (as long as qubit and environment start uncorrelated). What it lacks is one identical channel per step dt.</p>
 <pre>Markov:   Φ(t + s) = Φ(t)·Φ(s)      semigroup: chop into identical steps → Lindblad
-Trotter:  e^{−iHt} ≈ (e^{−iH₁dt} e^{−iH₂dt})^r     computing trick, always allowed</pre>
-        <p>Trotter is a numerical method for a closed system, which never has memory. Markov is a physical assumption that can be false. With memory you can still chop if you keep the environment in the picture and trace it out only at the end. That is what DiffusionCB's couple_with_env does. If qubit and environment start entangled, even the single overall Kraus description can fail (process tensors handle that).</p>
+Trotter:  e<sup>−iHt</sup> ≈ (e<sup>−iH₁dt</sup> e<sup>−iH₂dt</sup>)<sup>r</sup>     computing trick, always allowed</pre>
+        <p>Trotter is a numerical method for a closed system, which never has memory. Markov is a physical assumption that can be false. With memory you can still chop if you keep the environment in the picture and trace it out only at the end. If qubit and environment start entangled, even the single overall Kraus description can fail (process tensors handle that).</p>
         <p class="board">Non-Markovian doesn't break Kraus or completeness. It breaks "the same channel every step". In CB that shows up as decays that are not a single clean exponential.</p>
         <details class="recall"><summary>Recall</summary><p>Trotter vs Markov: which is a trick and which is an assumption? (Trotter = computing trick, always allowed; Markov = physical assumption, true or false for the hardware.)</p></details>
       </article>
@@ -327,7 +331,7 @@ Trotter:  e^{−iHt} ≈ (e^{−iH₁dt} e^{−iH₂dt})^r     computing trick, 
         <div class="tablewrap"><table>
           <thead><tr><th>Noise</th><th>What it does to the ball</th><th>Where it comes up</th></tr></thead>
           <tbody>
-            <tr><td>Depolarizing ρ → pρ + (1−p)I/d</td><td>Shrinks evenly toward the centre</td><td>A Clifford twirl turns any noise into this, giving RB's A·p^m + B</td></tr>
+            <tr><td>Depolarizing ρ → pρ + (1−p)I/d</td><td>Shrinks evenly toward the centre</td><td>A Clifford twirl turns any noise into this, giving RB's A·p<sup>m</sup> + B</td></tr>
             <tr><td>Amplitude damping (L = σ₋)</td><td>Pulls toward |0⟩ (north pole)</td><td>T1, energy relaxation</td></tr>
             <tr><td>Phase damping (L = Z)</td><td>Squeezes toward the Z axis, losing x and y</td><td>T2, loss of interference</td></tr>
           </tbody>
@@ -337,105 +341,108 @@ Trotter:  e^{−iHt} ≈ (e^{−iH₁dt} e^{−iH₂dt})^r     computing trick, 
       </article>
     </section>
 
-    <!-- ============ LINDBLAD ============ -->
+    <!-- ============ LINDBLAD: TAKEAWAYS ============ -->
     <section class="part" id="lindblad">
-      <h2>Lindblad (GKSL) derivation</h2>
+      <h2>Lindblad: what to take away</h2>
 
       <article class="card" id="l1">
-        <h3><span class="id">L1</span>Why K_0 = I + M·dt</h3>
-        <p class="stmt">With zero time nothing happens, so K_0 = I. For a tiny step the change is proportional to the time. M is the rate, the time-independent physics.</p>
-<pre>closed system:  U = e^{−iH·dt} ≈ I + (−iH)·dt      same shape, M = −iH
-open system:    K_0 = I + M·dt                       M can be any matrix</pre>
-        <details class="recall"><summary>Recall</summary><p>Why may M be non-Hermitian? (It must both shrink the no-jump branch and rotate.)</p></details>
+        <h3><span class="id">L1</span>The Lindblad equation is rotation plus loss, with no memory</h3>
+        <p class="stmt">The state changes by a reversible rotation from the Hamiltonian H, plus an irreversible loss from jumps Lₖ happening at rates γₖ. The same rule applies at every instant: the environment forgets after each step.</p>
+<pre>dρ/dt = −i[H, ρ]  +  Σₖ γₖ ( Lₖ ρ Lₖ† − ½ Lₖ†Lₖ ρ − ½ ρ Lₖ†Lₖ )
+         rotation              loss (the dissipator)
+         reversible            irreversible</pre>
+        <ul>
+          <li>H is Hermitian, not unitary. It generates the unitary e<sup>−iHt</sup>, which appears in the solution, not in the equation (as dx/dt = −kx is solved by e<sup>−kt</sup>).</li>
+          <li>Lₖ ρ Lₖ† is the jump itself. The two −½ terms are the "no jump happened" branch shrinking to balance it, so the trace stays 1.</li>
+          <li>With every γₖ = 0 it reduces to the closed system, dρ/dt = −i[H, ρ].</li>
+        </ul>
+        <details class="recall"><summary>Recall</summary><p>Which term is reversible, and what keeps the trace at 1? (The commutator is reversible; the two −½ terms balance the jump term.)</p></details>
       </article>
 
       <article class="card" id="l2">
-        <h3><span class="id">L2</span>Why K_k = √(γ_k·dt)·L_k</h3>
-        <p class="stmt">Rate × time = probability, and amplitude = √probability. L_k is the shape of the jump, γ_k its rate.</p>
-<pre>p_k = tr(K_k ρ K_k†) = γ_k · dt · tr(L_k†L_k ρ)
-exact:   K_1 = √(1 − e^{−γdt}) σ₋  ≈  √(γ dt) σ₋     for small dt</pre>
-        <p class="lbl">Example (L = σ₋, so L†L = |1⟩⟨1|)</p>
-<pre>ρ = |1⟩⟨1|  → p = γ dt        ρ = |0⟩⟨0|  → p = 0        ρ = |+⟩⟨+|  → p = γ dt/2</pre>
-        <p>Because K appears twice in KρK†, the √dt becomes dt: jumps land at first order, which is why they survive in the equation while the Hamiltonian's dt² terms drop out.</p>
-        <details class="recall"><summary>Recall</summary><p>Why does the square root go on K and not on the probability? (K is an amplitude; probability = amplitude².)</p></details>
+        <h3><span class="id">L2</span>One tiny step: "nothing happened" is close to I, a jump carries √dt</h3>
+        <p class="stmt">Over a tiny time dt, the no-jump branch is K₀ = I + M·dt (zero time, nothing happens). A jump is Kₖ = √(γₖ dt)·Lₖ, because rate × time = probability and amplitude = √probability.</p>
+<pre>p(jump k in dt) = γₖ · dt · tr(Lₖ†Lₖ ρ)
+for L = σ₋:   excited |1⟩ → γ dt      ground |0⟩ → 0      |+⟩ → γ dt / 2</pre>
+        <p>The Kraus operators belong to that window dt; the rates γₖ and the shapes Lₖ are the time-independent physics.</p>
+        <details class="recall"><summary>Recall</summary><p>Why does the square root sit on K and not on the probability? (K is an amplitude; probability = amplitude².)</p></details>
       </article>
 
       <article class="card" id="l3">
-        <h3><span class="id">L3</span>Every matrix is Hermitian + i·Hermitian</h3>
-        <p class="stmt">Any square matrix splits uniquely as M = A + iB with A and B Hermitian, the matrix version of z = Re + i·Im with † in place of *. This is the Cartesian decomposition.</p>
-<pre>A = (M + M†)/2            A† = (M† + M)/2 = A        ✓
-B = (M − M†)/(2i)         B† = (M† − M)/(−2i) = B    ✓
-uniqueness: A − A' = i(B' − B)  → Hermitian = anti-Hermitian → both 0
-dagger rules: (X+Y)† = X†+Y†,  (cX)† = c*·X†,  (M†)† = M</pre>
-        <p class="lbl">Example</p>
-<pre>σ₋ = [[0,1],[0,0]]  →  A = X/2,  B = Y/2,  σ₋ = (X + iY)/2</pre>
-        <p>It is not "take the real part of each entry": σ₋ has only real entries but is not Hermitian. The dagger mixes each entry with its mirror across the diagonal. In K_0, A shrinks (loss) and iB rotates (Hamiltonian).</p>
-        <p>Side fact: Hermitian does not mean diagonal. H = [[a, z], [z*, d]] with a, d real; X has an empty diagonal. A Hermitian matrix is diagonal only in its own eigenbasis.</p>
-        <details class="recall"><summary>Recall</summary><p>Check B† = B: what happens to the 2i under the dagger? (It becomes −2i; with M − M† flipping to M† − M, the two signs cancel.)</p></details>
+        <h3><span class="id">L3</span>Loss is fixed by trace preservation; rotation is free and is the Hamiltonian</h3>
+        <p class="stmt">Any square matrix splits uniquely as M = A + iB with A and B Hermitian, the matrix version of z = Re + i·Im with † in place of *. In K₀, keeping the trace at 1 fixes A (the loss). B is left free, and it is the Hamiltonian: B = −H.</p>
+<pre>A = (M + M†)/2       B = (M − M†)/(2i)       A† = A,  B† = B
+A = −½ Σₖ γₖ Lₖ†Lₖ        (from Σ K†K = I)
+example:  σ₋ = [[0,1],[0,0]] = X/2 + i·Y/2</pre>
+        <p>This is not "take the real part of each entry": σ₋ has only real entries but is not Hermitian. Hermitian does not mean diagonal either: X is Hermitian with an empty diagonal.</p>
+        <details class="recall"><summary>Recall</summary><p>Which part of K₀ shrinks and which rotates? (A shrinks; iB rotates and becomes the Hamiltonian.)</p></details>
       </article>
 
       <article class="card" id="l4">
-        <h3><span class="id">L4</span>Why B = −H: a limiting-case check</h3>
-        <p class="stmt">Completeness fixes A = −½ Σ γ_k L_k†L_k and leaves B free. B's terms form a commutator, so B acts as a Hamiltonian. With every γ_k = 0 the equation must reduce to the closed one, so H = −B.</p>
-<pre>2A + M†M·dt + Σ γ L†L = 0   →  dt → 0  →  A = −½ Σ γ_k L_k†L_k
-iBρ − iρB = −i[−B, ρ]
-γ_k = 0:  −i[−B, ρ] = −i[H, ρ]  for every ρ   ⇒  B = −H</pre>
-        <p>B = −H + c·I gives the same physics. The H here is the effective Hamiltonian: the qubit's own energy and drives plus a small shift from the environment (the Lamb shift). The environment's own Hamiltonian hides inside the L_k and γ_k.</p>
-        <details class="recall"><summary>Recall</summary><p>Is "compare with the closed system" a proof? (It is a limiting-case check: with no jumps the open equation must reduce to the closed one.)</p></details>
-      </article>
-
-      <article class="card" id="l5">
-        <h3><span class="id">L5</span>The final equation: rotation plus loss</h3>
-        <p class="stmt">ρ̇ = unitary rotation from H + irreversible loss from the jumps L_k at rates γ_k, with no memory between steps.</p>
-<pre>ρ̇ = −i[H, ρ] + Σ_{k≥1} γ_k ( L_k ρ L_k† − ½ L_k†L_k ρ − ½ ρ L_k†L_k )
-     commutator              dissipator
-     reversible              irreversible</pre>
-        <ul>
-          <li>K_0 is absorbed into both terms: its iB part becomes the commutator, its A part becomes the two −½ terms.</li>
-          <li>H is Hermitian, not unitary. It generates the unitary e^{−iHt}, which appears in the solution, not in the equation (like dx/dt = −kx solved by e^{−kt}).</li>
-          <li>tr(ρ̇) = 0 term by term, so probability is conserved.</li>
-        </ul>
-        <details class="recall"><summary>Recall</summary><p>Where did K_0 go in the final equation? (Split: iB → commutator, A → the two −½ terms.)</p></details>
-      </article>
-
-      <article class="card" id="l6">
-        <h3><span class="id">L6</span>Amplitude damping: why σ₋ and why E0 looks the way it does</h3>
-        <p class="stmt">Choose L = the jump you believe happens. An excited |1⟩ gives energy to the environment and falls to |0⟩, and only σ₋ = |0⟩⟨1| does exactly that. E0 is then forced by completeness, up to a rotation.</p>
-<pre>σ₋|1⟩ = |0⟩      σ₋|0⟩ = 0            X would also heat |0⟩ → |1⟩: wrong physics
-E1 = √(1−p) σ₋                        p = survival probability (N&amp;C use γ = 1 − p)
-E0†E0 = I − E1†E1 = diag(1, p)
-completeness alone: E0 = V·diag(1, √p) for ANY unitary V   (V cancels in E0†E0)
-assume no rotation (H = 0) → E0 diagonal → E0 = diag(1, √p)</pre>
-        <ul>
-          <li>"Amplitude" means the excited-state amplitude losing energy. The name covers the whole channel. E1 moves population; E0 is the "no photon seen" update, and seeing nothing is information, so it shrinks |1⟩.</li>
-          <li>The leftover freedom V is exactly the Hamiltonian part (the iB in K_0).</li>
-          <li>Result: populations decay at γ (T1 = 1/γ), coherences at γ/2 (T2 = 2T1). Extra dephasing only shortens T2, so T2 ≤ 2T1.</li>
-          <li>Correct solution: a(t) = 1 − (1 − a₀)e^{−γt}. (Page 21 of the original PDF has the wrong constant.)</li>
-        </ul>
-        <details class="recall"><summary>Recall</summary><p>Why can't completeness alone pin down E0? (Any rotation V after E0 cancels in E0†E0; you need the physics assumption H = 0.)</p></details>
+        <h3><span class="id">L4</span>Choose L to be the jump you believe happens</h3>
+        <p class="stmt">The jump operator encodes the physics. Energy relaxation, where |1⟩ falls to |0⟩: L = σ₋ = |0⟩⟨1|. Random phase kicks: L = Z.</p>
+<pre>σ₋|1⟩ = |0⟩      σ₋|0⟩ = 0          only goes down: a cold environment never gives energy back
+Z|0⟩ = |0⟩       Z|1⟩ = −|1⟩        flips the relative phase, leaves the populations alone</pre>
+        <p>X would also lift |0⟩ to |1⟩ (heating), the wrong physics for a cold qubit. "Amplitude damping" names the whole channel: the excited-state amplitude and its energy drain away.</p>
+        <details class="recall"><summary>Recall</summary><p>Why not L = X for relaxation? (X also pumps |0⟩ up to |1⟩.)</p></details>
       </article>
     </section>
 
-    <!-- ============ SLIPS ============ -->
-    <section class="part" id="slips">
-      <h2>Slips I made</h2>
-      <article class="card" id="s1">
-        <h3><span class="id">S1</span>Traps to avoid on the board</h3>
+    <!-- ============ T1 AND T2 ============ -->
+    <section class="part" id="t1t2">
+      <h2>T1 and T2</h2>
+      <p class="intro">Write the qubit state as ρ = [[ρ₀₀, ρ₀₁], [ρ₁₀, ρ₁₁]], with H = 0 and one jump operator. ρ₀₀ and ρ₁₁ are the populations of |0⟩ and |1⟩; ρ₀₁ and ρ₁₀ are the coherences. <span class="c1">Orange</span> marks populations (T1), <span class="c2">violet</span> marks coherences (T2).</p>
+
+      <article class="card" id="t1">
+        <h3><span class="id">T1</span>Amplitude damping: populations decay at γ, coherences at γ/2</h3>
+        <p class="stmt">With L = σ₋ at rate γ, the excited population drains into |0⟩ as e<sup>−γt</sup>, and the coherence fades at half that rate.</p>
+        <p class="lbl">What the equation gives, entry by entry</p>
+<pre>dρ/dt = γ [[  ρ₁₁,      −ρ₀₁/2 ],
+           [ −ρ₁₀/2,    −ρ₁₁   ]]</pre>
+        <div class="formulas">
+          <div class="formula t1"><span class="name">Excited population</span><span class="eq">ρ₁₁(t) = ρ₁₁(0)·e<sup>−γt</sup></span><span class="says">|1⟩ drains away</span></div>
+          <div class="formula t1"><span class="name">Ground population</span><span class="eq">ρ₀₀(t) = 1 − ρ₁₁(0)·e<sup>−γt</sup></span><span class="says">what leaves |1⟩ lands in |0⟩</span></div>
+          <div class="formula t2"><span class="name">Coherence</span><span class="eq">ρ₀₁(t) = ρ₀₁(0)·e<sup>−γt/2</sup></span><span class="says">fades at half the rate</span></div>
+        </div>
+        <p>Reading off the times: populations decay as e<sup>−t/T1</sup>, so <span class="c1">T1 = 1/γ</span>. Coherences decay as e<sup>−t/T2</sup>, so <span class="c2">T2 = 2/γ = 2·T1</span>.</p>
+        <details class="recall"><summary>Recall</summary><p>Starting in |1⟩, how much is left in |1⟩ after a time T1? (e<sup>−1</sup> ≈ 37%.)</p></details>
+      </article>
+
+      <article class="card" id="t2">
+        <h3><span class="id">T2</span>Phase damping: populations stay put, coherences decay at 2γ<sub>φ</sub></h3>
+        <p class="stmt">With L = Z at rate γ<sub>φ</sub>, nothing moves between |0⟩ and |1⟩; only the off-diagonals shrink. Interference is lost while the populations are untouched.</p>
+        <p class="lbl">What the equation gives (using Z² = I)</p>
+<pre>dρ/dt = γᵩ (ZρZ − ρ) = γᵩ [[    0,     −2ρ₀₁ ],
+                          [ −2ρ₁₀,       0   ]]</pre>
+        <div class="formulas">
+          <div class="formula t1"><span class="name">Populations</span><span class="eq">ρ₀₀, ρ₁₁ constant</span><span class="says">no energy lost: on its own this noise gives T1 = ∞</span></div>
+          <div class="formula t2"><span class="name">Coherence</span><span class="eq">ρ₀₁(t) = ρ₀₁(0)·e<sup>−2γ<sub>φ</sub>t</sup></span><span class="says">only the phase information fades</span></div>
+        </div>
+        <p>So <span class="c2">T2 = 1/(2γ<sub>φ</sub>)</span>. On the Bloch ball the state slides in toward the Z axis.</p>
+        <details class="recall"><summary>Recall</summary><p>Does phase damping change the probability of measuring 0? (No: it only changes the off-diagonals, which a Z measurement never reads.)</p></details>
+      </article>
+
+      <article class="card" id="t3">
+        <h3><span class="id">T3</span>Both together: rates add, so T2 can never exceed 2·T1</h3>
+        <p class="stmt">With both noises the decay rates add. The coherence feels γ/2 from relaxation plus 2γ<sub>φ</sub> from dephasing, so T2 ≤ 2·T1, with equality only when there is no pure dephasing.</p>
         <div class="tablewrap"><table>
-          <thead><tr><th>Wrong</th><th>Right</th><th>Why</th></tr></thead>
+          <thead><tr><th>Noise</th><th>Population rate 1/T1</th><th>Coherence rate 1/T2</th></tr></thead>
           <tbody>
-            <tr><td class="wrong">tr(Aρ) = tr(A)·tr(ρ)</td><td>tr(Aρ) via the cyclic property</td><td>tr(I) = 2 for a qubit, which would contradict Σ K†K = I</td></tr>
-            <tr><td class="wrong">ρ → Σ K†ρK</td><td>ρ → Σ KρK†</td><td>With K† in front, cycling gives KK†, not K†K</td></tr>
-            <tr><td class="wrong">(cX)† = cX†</td><td>(cX)† = c*X†</td><td>That is why (iB)† = −iB</td></tr>
-            <tr><td class="wrong">|0⟩⟨1| is a projector</td><td>|0⟩⟨0| is a projector</td><td>|0⟩⟨1| squares to 0</td></tr>
-            <tr><td class="wrong">p(0) = tr(Zρ)</td><td>p(0) = tr(P₀ρ); ⟨Z⟩ = tr(Zρ)</td><td>A projector gives a probability, an observable an average</td></tr>
-            <tr><td class="wrong">Hermitian part = real part of each entry</td><td>A = (M + M†)/2</td><td>σ₋ has real entries but is not Hermitian</td></tr>
-            <tr><td class="wrong">after ÷dt, keep a dt² term</td><td>dt² ÷ dt = dt</td><td>It still vanishes, but the line is wrong as written</td></tr>
+            <tr><td>Amplitude damping (γ)</td><td class="f">γ</td><td class="f">γ/2</td></tr>
+            <tr><td>Phase damping (γ<sub>φ</sub>)</td><td class="f">0</td><td class="f">2γ<sub>φ</sub></td></tr>
+            <tr><td>Both</td><td class="f">γ</td><td class="f">γ/2 + 2γ<sub>φ</sub></td></tr>
           </tbody>
         </table></div>
+        <div class="formulas">
+          <div class="formula t2"><span class="name">The rule</span><span class="eq">1/T2 = 1/(2·T1) + 2γ<sub>φ</sub></span><span class="says">γ<sub>φ</sub> ≥ 0, so 1/T2 ≥ 1/(2·T1)</span></div>
+          <div class="formula t1"><span class="name">The bound</span><span class="eq">T2 ≤ 2·T1</span><span class="says">equal only with no pure dephasing</span></div>
+        </div>
+        <p>Every qubit's measured T1 and T2 obey this bound. A T2 well below 2·T1 means extra dephasing, for example from noise in the qubit's frequency.</p>
+        <details class="recall"><summary>Recall</summary><p>A qubit has T1 = 100 µs. What is the largest T2 it can have, and when? (200 µs, only with no pure dephasing.)</p></details>
       </article>
     </section>
+
   </main>
 
-  <footer>Built from sessions on 14–19 Nov 2026, from the handwritten Lindblad notes (<a href="https://imelenwe.github.io/randomized-benchmarking/learn/handwritten-notes/lindblad-equation.pdf">PDF</a>) and their rewrite. Back to the <a href="../../index.html">physics index</a> or <a href="https://imelenwe.github.io/">Quantum Research &amp; Learnings</a>.</footer>
+  <footer>Back to the <a href="../../index.html">physics index</a> or <a href="https://imelenwe.github.io/">Quantum Research &amp; Learnings</a>.</footer>
 </div>

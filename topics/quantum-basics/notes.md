@@ -22,7 +22,6 @@ Each card: a statement to say out loud, why it is true, one worked example, a re
   → average. O = Σ λ P. ⟨Z⟩ = 3/8 − 5/8 = −1/4. Born 1926; von Neumann 1927–32; Gleason 1957.
 - **M8 The state is ρ itself.** The matrix is coordinates. Same ρ in the ± basis:
   [[7/8, −1/8], [−1/8, 1/8]]. Basis-free: eigenvalues ≈ 0.895, 0.105; purity 13/16; |r| = √10/4.
-- **M9 Overlap of two errors.** ⟨ψ|E_i†E_j|ψ⟩ = overlap of E_i|ψ⟩ and E_j|ψ⟩; tr(A†B) for matrices.
 
 ## Channels and Kraus operators
 
@@ -31,15 +30,18 @@ Each card: a statement to say out loud, why it is true, one worked example, a re
 - **K3** Memory breaks "same channel every step", not the Kraus form. Trotter = trick, Markov = assumption.
 - **K4** Depolarizing → centre; amplitude damping → |0⟩; phase damping → Z axis.
 
-## Lindblad
+## Lindblad: what to take away
 
-- **L1** K₀ = I + M·dt. **L2** K_k = √(γ_k dt)·L_k (rate × time = probability).
-- **L3** M = A + iB, A = (M+M†)/2, B = (M−M†)/2i, unique. Hermitian ≠ diagonal.
-- **L4** Completeness fixes A = −½ Σ γ L†L; γ = 0 limit gives B = −H.
-- **L5** ρ̇ = −i[H, ρ] + Σ γ (LρL† − ½L†Lρ − ½ρL†L).
-- **L6** Amplitude damping: L = σ₋; E₀ = V·diag(1, √p), V = 1 when H = 0; T2 = 2T1, T2 ≤ 2T1.
+- **L1 Rotation plus loss, no memory.** dρ/dt = −i[H, ρ] + Σₖ γₖ (Lₖ ρ Lₖ† − ½ Lₖ†Lₖ ρ − ½ ρ Lₖ†Lₖ).
+  H generates the unitary; the jump term moves the state; the −½ terms keep the trace at 1.
+- **L2 One tiny step.** K₀ = I + M·dt; Kₖ = √(γₖ dt)·Lₖ (rate × time = probability).
+- **L3 Loss fixed, rotation free.** M = A + iB; trace preservation fixes A = −½ Σ γₖ Lₖ†Lₖ;
+  B is free and equals −H. σ₋ = X/2 + i·Y/2.
+- **L4 Choose the jump.** Relaxation: L = σ₋. Dephasing: L = Z.
 
-## Slips to avoid
+## T1 and T2 (ρ = [[ρ₀₀, ρ₀₁], [ρ₁₀, ρ₁₁]], H = 0)
 
-tr(Aρ) ≠ tr(A)tr(ρ) · channel is KρK† · (cX)† = c*X† · |0⟩⟨1| is not a projector ·
-p(0) is tr(P₀ρ), not tr(Zρ) · Hermitian part ≠ entry-wise real part · dt² ÷ dt = dt.
+- **T1 Amplitude damping (L = σ₋, rate γ).** ρ₁₁(t) = ρ₁₁(0)e^(−γt); ρ₀₀(t) = 1 − ρ₁₁(0)e^(−γt);
+  ρ₀₁(t) = ρ₀₁(0)e^(−γt/2). T1 = 1/γ, T2 = 2T1.
+- **T2 Phase damping (L = Z, rate γᵩ).** Populations constant; ρ₀₁(t) = ρ₀₁(0)e^(−2γᵩt). T2 = 1/(2γᵩ).
+- **T3 Both.** 1/T2 = 1/(2T1) + 2γᵩ, so T2 ≤ 2T1 (equal only with no pure dephasing).

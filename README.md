@@ -63,4 +63,4 @@ Topic folders use short lowercase names with dashes, e.g. `topics/special-relati
 - **Classical waves** (`topics/waves/`): one page: a wave as a delayed copy, the formula,
   the complex form (displacement + i·velocity), superposition.
 - **Quantum basics** (`topics/quantum-basics/`): the Deep Quantum Basics: Born rule and
-  trace, projectors vs observables, Kraus operators, Lindblad derivation, amplitude damping.
+  trace, projectors vs observables, Kraus operators, Lindblad takeaways, T1 and T2.
