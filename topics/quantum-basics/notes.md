@@ -1,7 +1,7 @@
 # Quantum basics — notes
 
 Source of truth for [`deep-basics-notebook.html`](deep-basics-notebook.html).
-Built from study sessions on 14–19 Nov 2026 (Lindblad derivation, Born rule, projectors,
+Built from sessions on 14–19 Nov 2026 (Lindblad derivation, Born rule, projectors,
 Kraus operators). The page is a notebook of short cards rather than one concept per page;
 split it into separate pages later if it grows.
 
