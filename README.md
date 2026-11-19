@@ -62,5 +62,5 @@ Topic folders use short lowercase names with dashes, e.g. `topics/special-relati
   is, where classical physics fails, and how Planck's energy packets fixed it.
 - **Classical waves** (`topics/waves/`): one page: a wave as a delayed copy, the formula,
   the complex form (displacement + i·velocity), superposition.
-- **Quantum basics** (`topics/quantum-basics/`): the Deep Basics Notebook: Born rule and
+- **Quantum basics** (`topics/quantum-basics/`): the Deep Quantum Basics: Born rule and
   trace, projectors vs observables, Kraus operators, Lindblad derivation, amplitude damping.
