@@ -52,7 +52,7 @@ header.top { grid-column: 1 / -1; display: grid; gap: 8px; }
 .eyebrow { font-family: var(--f-mono); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
 h1 { font-family: var(--f-display); font-size: clamp(28px, 4vw, 40px); line-height: 1.15; margin: 0; text-wrap: balance; }
 .lede { color: var(--muted); max-width: 65ch; margin: 0; }
-nav.toc { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 24px); align-self: start; display: grid; gap: 18px; font-size: 14px; }
+nav.toc { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 24px); align-self: start; display: grid; gap: 18px; font-size: 14px; max-height: calc(100vh - 48px); overflow-y: auto; overscroll-behavior: contain; padding-right: 6px; }
 nav.toc .grp { display: grid; gap: 4px; }
 nav.toc .grp > span { font-family: var(--f-mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
 nav.toc a { color: var(--ink); text-decoration: none; padding: 2px 0; }
@@ -105,7 +105,7 @@ table { font-variant-numeric: tabular-nums; }
 footer { grid-column: 1 / -1; color: var(--muted); font-size: 13px; border-top: 1px solid var(--rule); padding-top: 16px; }
 @media (max-width: 860px) {
   .wrap { grid-template-columns: minmax(0, 1fr); gap: 28px; }
-  nav.toc { position: static; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); background: var(--paper); border: 1px solid var(--rule); border-radius: 10px; padding: 14px 16px; }
+  nav.toc { position: static; max-height: none; overflow: visible; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); background: var(--paper); border: 1px solid var(--rule); border-radius: 10px; padding: 14px 16px; }
   article.card { padding: 18px 16px; }
 }
 @media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
@@ -148,7 +148,6 @@ footer { grid-column: 1 / -1; color: var(--muted); font-size: 13px; border-top: 
       <a href="#t4"><b>T4</b>T1 is a time constant</a>
       <a href="#t5"><b>T5</b>Decay probability p(t)</a>
       <a href="#t6"><b>T6</b>How IBM measures T1, T2</a>
-      <a href="#t7"><b>T7</b>My qubits vs my CB result</a>
     </div>
     <div class="grp"><span>Benchmarking</span>
       <a href="#b1"><b>B1</b>Standard RB</a>
@@ -535,28 +534,6 @@ very short time dt:   p ≈ dt/T1 = γ·dt                       (this is L2)</p
         <p class="limit">The values change from day to day. Small defects in the chip (two-level systems) change with time. These defects are an environment with memory. A large gap between T2* and T2 also shows slow noise.</p>
         <p class="board">T1 and T2 are time constants of fitted exponentials. The fits assume Markovian decay. The daily drift is evidence of slow, non-Markovian noise.</p>
         <details class="recall"><summary>Recall</summary><p>What does the X gate in the middle of the echo do? (It cancels slow, steady frequency drift, so echo T2 is longer than Ramsey T2*.)</p></details>
-      </article>
-
-      <article class="card" id="t7">
-        <h3><span class="id">T7</span>My qubits: the T1/T2 floor vs my CB result</h3>
-        <p class="stmt">T1 and T2 explain only about 0.5% error for my CZ cycle. CB measured about 8.5%. Thus most of my error comes from coherent errors and crosstalk.</p>
-        <p class="lbl">Data (FakeFez snapshot of ibm_fez)</p>
-        <div class="tablewrap"><table>
-          <thead><tr><th>Qubit</th><th>T1</th><th>T2</th><th>T2 / (2·T1)</th><th>Result</th></tr></thead>
-          <tbody>
-            <tr><td>Median, all qubits</td><td class="f">145 µs</td><td class="f">88 µs</td><td class="f">—</td><td>—</td></tr>
-            <tr><td>38</td><td class="f">127 µs</td><td class="f">155 µs</td><td class="f">0.61</td><td>some dephasing</td></tr>
-            <tr><td>49</td><td class="f">109 µs</td><td class="f">20 µs</td><td class="f">0.09</td><td>strong dephasing</td></tr>
-          </tbody>
-        </table></div>
-        <p class="lbl">Calculation (CZ duration = 84 ns)</p>
-<pre>error from T1 ≈ t / T1 ≈ 84 ns / 109 µs ≈ 0.0008
-error from T2 ≈ t / T2 ≈ 84 ns / 20 µs  ≈ 0.004
-T1/T2 floor   ≈ 0.5%
-CB result     F = 0.915  →  about 8.5% error per cycle  →  about 15 × the floor</pre>
-        <p class="limit">FakeFez is a saved snapshot. The live values are on the IBM Quantum dashboard, or in Qiskit: backend.target.qubit_properties[q].t1 and .t2.</p>
-        <p class="board">T1 and T2 set a floor of about 0.5% for our CZ. CB measured about 8.5%. Thus the main error is coherent or crosstalk noise, which T1 and T2 alone do not describe.</p>
-        <details class="recall"><summary>Recall</summary><p>Which of my two qubits has strong extra dephasing, and how do you know? (Qubit 49: T2 = 20 µs is far below 2·T1 = 218 µs.)</p></details>
       </article>
     </section>
 
