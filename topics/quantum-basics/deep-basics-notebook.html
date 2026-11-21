@@ -488,7 +488,7 @@ Z|0⟩ = |0⟩       Z|1⟩ = −|1⟩        flips the relative phase, leaves t
 
       <article class="card" id="t5">
         <h3><span class="id">T5</span>Decay probability p(t) = 1 − e<sup>−t/T1</sup></h3>
-        <p class="stmt">Survival and decay always add to 1. In Prof. Mandayam's course (PH5842), p is the decay probability.</p>
+        <p class="stmt">Survival and decay always add to 1. In the standard convention, p is the decay probability.</p>
         <p class="lbl">Example (T1 = 100 µs)</p>
         <div class="tablewrap"><table>
           <thead><tr><th>Time t</th><th>Survival e<sup>−t/T1</sup></th><th>Decay p = 1 − e<sup>−t/T1</sup></th></tr></thead>
@@ -499,14 +499,14 @@ Z|0⟩ = |0⟩       Z|1⟩ = −|1⟩        flips the relative phase, leaves t
             <tr><td>300 µs</td><td class="f">0.05</td><td class="f">0.95</td></tr>
           </tbody>
         </table></div>
-        <p class="lbl">The link to the Kraus operators (PH5842, Lecture 6)</p>
+        <p class="lbl">The link to the Kraus operators</p>
 <pre>E₀ = [[1, 0], [0, √(1−p)]]      E₁ = [[0, √p], [0, 0]]      p = 1 − e^(−t/T1)
 very short time dt:   p ≈ dt/T1 = γ·dt                       (this is L2)</pre>
         <ul>
           <li>Kraus describes the noise over one time window t.</li>
           <li>Lindblad describes the same noise as a rate γ = 1/T1.</li>
         </ul>
-        <p class="limit">My own Lindblad notes used p for survival. On the board, use the course convention: p = decay. Nielsen &amp; Chuang use the same convention.</p>
+        <p class="limit">Some notes use p for survival instead. On the board, say which convention you use. The standard convention is p = decay.</p>
         <details class="recall"><summary>Recall</summary><p>T1 = 100 µs and t = 100 µs. What is p? (1 − e<sup>−1</sup> = 0.63.)</p></details>
       </article>
 
@@ -577,18 +577,18 @@ r_G ≈ (d − 1)(1 − p_G / p)/d</pre>
         <p class="stmt">CB uses a Pauli twirl around one cycle. Each Pauli decays at its own rate. The average of these rates gives the process fidelity of the cycle.</p>
 <pre>random Paulis → [cycle] → random Paulis → [cycle] … m times
 each Pauli P decays as  λ_P^m
-process fidelity F = average of λ_P        my Fez result: F = 0.9150 on qubits (38, 49)</pre>
+process fidelity F = average of λ_P</pre>
         <p class="lbl">The shared assumption</p>
         <p>RB, IRB and CB all assume the same noise at every step. This is the no-memory (Markov) assumption of Lindblad (L1, K3). This assumption gives the single exponential.</p>
-        <p class="limit">Noise with memory breaks "the same noise at every step". Then the decay is not one clean exponential. DiffusionCB reads this shape from the raw CB data and infers the memory (δ).</p>
-        <p class="board">Twirling makes any Markovian noise decay as one exponential. RB reads one rate. CB reads one rate per Pauli. Memory breaks the single exponential, and DiffusionCB measures that.</p>
+        <p class="limit">Noise with memory breaks "the same noise at every step". Then the decay is not one clean exponential. The shape of the decay then carries information about the memory.</p>
+        <p class="board">Twirling makes any Markovian noise decay as one exponential. RB reads one rate. CB reads one rate per Pauli. Memory breaks the single exponential.</p>
         <details class="recall"><summary>Recall</summary><p>Which twirl does CB use, and what does it give? (A Pauli twirl. It gives a Pauli channel, with one decay rate per Pauli.)</p></details>
       </article>
     </section>
 
     <!-- ============ ERROR CORRECTION ============ -->
     <section class="part" id="qec">
-      <h2>Error correction (PH5842, L11–L16)</h2>
+      <h2>Error correction</h2>
       <p class="intro">Running example: the 3-qubit bit-flip code. Codewords |0⟩<sub>L</sub> = |000⟩ and |1⟩<sub>L</sub> = |111⟩. Errors {I, X₁, X₂, X₃}.</p>
 
       <article class="card" id="q1">
